@@ -74,6 +74,7 @@ void setup()
   mySerial.begin(115200);
   mySerial.print("#0D1500\r");    
   
+  mySerial.print(String("#") + LSS_ID + String("WR") + currentSpeed  + "\r");
 
 }
 
@@ -90,8 +91,6 @@ void loop() {
     notify("press", true);
     previousMillisShake = currentMillis;
   }
-
-  mySerial.print(String("#") + LSS_ID + String("WR") + currentSpeed  + "\r");
 }
 
 // -- Rotation Speed --
@@ -121,35 +120,80 @@ void change_rotation_speed(int targetSpeed) {
 // Accepts number between 30 and 200
 // Defined Speed
 void start_spin_1(int speed) {
-   runMotor(md1, LEFT_MOTOR, speed);
+  if (speed >= 30 && speed <= 200) {
+    md1.setDrive(LEFT_MOTOR, 0, speed);
+    delay(1000);
+    md1.setDrive(LEFT_MOTOR, 0, 0);
+    delay(200);
+    md1.setDrive(LEFT_MOTOR, 1, speed);
+    delay(1000);
+    md1.setDrive(LEFT_MOTOR, 0, 0);
+    delay(200);
+  }
 }
 
 // -- Spin Motor 2 --
 // Accepts number between 30 and 200
 // Defined Speed
 void start_spin_2(int speed) {
-  runMotor(md1, RIGHT_MOTOR, speed);
+  if (speed >= 30 && speed <= 200) {
+    md1.setDrive(RIGHT_MOTOR, 0, speed);
+    delay(1000);
+    md1.setDrive(RIGHT_MOTOR, 0, 0);
+    delay(200);
+    md1.setDrive(RIGHT_MOTOR, 1, speed);
+    delay(1000);
+    md1.setDrive(RIGHT_MOTOR, 0, 0);
+    delay(200);
+  }
 }
 
 // -- Spin Motor 3 --
 // Accepts number between 30 and 200
 // Defined Speed
 void start_spin_3(int speed) {
- runMotor(md2, LEFT_MOTOR, speed);
+  if (speed >= 30 && speed <= 200) {
+    md2.setDrive(LEFT_MOTOR, 0, speed);
+    delay(1000);
+    md2.setDrive(LEFT_MOTOR, 0, 0);
+    delay(200);
+    md2.setDrive(LEFT_MOTOR, 1, speed);
+    delay(1000);
+    md2.setDrive(LEFT_MOTOR, 0, 0);
+    delay(200);
+  }
 }
 
 // -- Spin Motor 4 --
 // Accepts number between 30 and 200
 // Defined Speed
 void start_spin_4(int speed) {
- runMotor(md2, RIGHT_MOTOR, speed);
+  if (speed >= 30 && speed <= 200) {
+    md2.setDrive(RIGHT_MOTOR, 0, speed);
+    delay(1000);
+    md2.setDrive(RIGHT_MOTOR, 0, 0);
+    delay(200);
+    md2.setDrive(RIGHT_MOTOR, 1, speed);
+    delay(1000);
+    md2.setDrive(RIGHT_MOTOR, 0, 0);
+    delay(200);
+  }
 }
 
 // -- Spin Motor 5 --
 // Accepts number between 30 and 200
 // Defined Speed
 void start_spin_5(int speed) {
-  runMotor(md3, LEFT_MOTOR, speed);
+  if (speed >= 30 && speed <= 200) {
+    md3.setDrive(LEFT_MOTOR, 0, speed);
+    delay(1000);
+    md3.setDrive(LEFT_MOTOR, 0, 0);
+    delay(200);
+    md3.setDrive(LEFT_MOTOR, 1, speed);
+    delay(1000);
+    md3.setDrive(LEFT_MOTOR, 0, 0);
+    delay(200);
+  }
 }
 
 
@@ -212,13 +256,6 @@ void TTS(bool state)
 {
   // optional  function to indicating model is talking (true) or not (false)
   digitalWrite(10, state ? HIGH : LOW);
-}
-
-inline void runMotor(SCMD& drv, uint8_t channel, int speed) {
-  int s = constrain(speed, -200, 200);
-  uint8_t dir = (s >= 0) ? 0 : 1;
-  uint8_t pwm = (uint8_t)constrain(abs(s), 0, 200);
-  drv.setDrive(channel, dir, pwm);
 }
 
 // {"function_name", "writeDataType", function}
