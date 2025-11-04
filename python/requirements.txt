@@ -1,0 +1,9 @@
+pyaudio 
+vosk 
+sounddevice 
+numpy 
+piper-tts
+pyusb 
+requests
+onnxruntime 
+webrtcvad

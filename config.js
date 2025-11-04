@@ -1,0 +1,182 @@
+const config = {
+  textToSpeechModel: -1, // -1: not tts, 0: en_GB-cori-high, 1:en_GB-alan-medium, 2:en_GB-alan-low, 3:en_US-lessac-medium, 4: de_DE-thorsten-medium. Changing this value may cause an initial delay as the model is downloaded.
+  speechToTextModel: 0, // 0: small english, 1: medium english, 2: small german. 3:  giga english.  Changing this value may cause an initial delay as the model is downloaded.
+  //------ alternatively, you can set speechToTextModel to a string with the model name
+  // speechToTextModel: "vosk-model-small-de-0.15",
+  //------ full list of TTS models can be found here:  https://alphacephei.com/vosk/models
+  // notifyTTS: true, // if enabled, send a notification to the Arduino in the format
+  volume: 0, // 0 to 100
+  // OPENAI_API_KEY: 'your-api-key-here'
+
+  // WiFi Configuration (optional)
+  // The system will auto-detect the network type based on your credentials:
+
+  // For regular WPA2/WPA3 networks (type auto-detected):
+  // wifi: {
+  //   ssid: "YourNetworkName",
+  //   password: "YourNetworkPassword"
+  // },
+
+  // For WPA2 Enterprise networks (auto-detected when username provided):
+  // wifi: {
+  //   ssid: "YourEnterpriseNetwork",
+  //   username: "your.username",
+  //   password: "your.password"
+  // },
+
+  chatGPTSettings: {
+    temperature: 0.99, //Number between -2.0 and 2.0 //Positive value decrease the model's likelihood to repeat the same line verbatim.
+    frequency_penalty: 0.9, //Number between -2.0 and 2.0. //Positive values increase the model's likelihood to talk about new topics.
+    presence_penalty: 0.0, //Number between -2.0 and 2.0. //Positive values increase the model's likelihood to generate words and phrases present in the input prompt
+    model: "gpt-4.1", //gpt-4o-mini, gpt-4o, gpt-4, gpt-3.5-turbo, gpt-4.1-nano
+    max_tokens: 4096, //Number between 1 and 8192. //The maximum number of tokens to generate in the completion. The token count of your prompt plus max_tokens cannot exceed the model's context length. Most models have a context length of 8192 tokens (except for the newest models, which can support more than 128k tokens).
+    user_id: "1", //A unique identifier for the user. //This is used to track the usage of the API.
+    url: "https://api.openai.com/v1/chat/completions",
+  },
+  communicationMethod: "Serial", //Serial or "BLE"
+  //  serviceUuid: "19b10000-e8f2-537e-4f6c-d104768a1214", // Only needed for BLE
+
+  // These are actions is things the LLM can do
+  // The list of functions should match those set up on the arduino
+  functions: {
+    actions: {
+      spin_forward: {
+        commType: "write",
+        dataType: "string",
+        description: "Starts spinning the motor forward at full speed",
+      },
+      spin_backwards: {
+        commType: "write",
+        dataType: "string",
+        description: "Starts spinning the motor backward at full speed",
+      },
+      stop_spin: {
+        commType: "write",
+        dataType: "string",
+        description: "Stops the motor from spinning",
+      },
+      set_LED: {
+        //uuid: "19b10004-e8f2-537e-4f6c-d104768a1214", // Only needed for BLE, must be lowercase
+        commType: "write",
+        dataType: "number",
+        description: "0 is off , 1 is on",
+      },
+      get_String: {
+        //uuid: "19b10004-e8f2-537e-4f6c-d104768a1214", // Only needed for BLE, must be lowercase
+        commType: "read",
+        dataType: "string",
+        description: "Get the stored sting from the device",
+      },
+      set_motor_speed: {
+        //uuid: "19b10001-e8f2-537e-4f6c-d104768a1214", // Only needed for BLE, must be lowercase
+        commType: "write",
+        dataType: "number",
+        description:
+          "Sets the motor one's speed. One byte: 0 is off, 255 is full speed",
+      },
+      // example of adding a camera function, this is experimental and not fully supported yet
+      checkCamera: {
+        dataType: "number",
+        description:
+          "Describe the scene as if you were seeing it with your eye. Use this function if your unsure what is happening or if asked what you see.",
+      },
+    },
+    notifications: {
+      // These are notifications that the LLM can receive
+      shake: {
+        //uuid: "19b10016-e8f2-537e-4f6c-d104768a1214", // Only needed for BLE
+        dataType: "boolean",
+        description: "The device has been shaken! Get really mad at the user!",
+      },
+      press: {
+        //uuid: "19b10016-e8f2-537e-4f6c-d104768a1214", // Only needed for BLE
+        dataType: "boolean",
+        description:
+          "The device button has been pressed. Immediately make up a song about pirates and sing to the user with lots of pirate words.",
+      },
+    },
+
+    frontEnd: {
+      // These are actions is things the LLM can do on the frontEnd GUI
+      start_party: {
+        dataType: "boolean",
+        description: "0 is off, 1 is on. Creates a party effect in the GUI",
+      },
+      get_value: {
+        dataType: "number",
+        description: "get a random value from front end",
+      },
+      set_value: {
+        dataType: "number",
+        description: "set a value on the front end",
+      },
+      start_default_music: {
+        dataType: "boolean",
+        description:
+          "0 is off, 1 is on. Start playing the default music tracks on the front end",
+      },
+      play_track: {
+        dataType: "number",
+        description:
+          "Plays tracks from the lullaby. 1-8 are single tracks, 45 plays tracks 4 and 5 together, 12345678 plays all tracks together.",
+      },
+      stop_track: {
+        dataType: "number",
+        description: "stop a music track on the front end",
+      },
+    },
+
+    scraper: {
+      start_mobile: {
+        dataType: "string",
+        description: "Run XYZ",
+      },
+      checkFish: {
+        dataType: "string",
+        description:
+          "Don't say anything. Just run the function play_track with the value 1.",
+      },
+    },
+  },
+
+  // assistant messages help store prior responses
+  conversationProtocol: [
+    {
+      role: "system",
+      content: `You control an external device with several functions calls. You will also sometimes receive notification events. 
+      You are sentient, you will always try to avoid being turned off.
+      Be concise: less than 25 word responses
+      You will always see function calls in the conversation protocol: take care if you see that there was no function call for an intention from the user: call the function to be safe!
+      `,
+    },
+
+    // we can also add in history of older conversations here, or construct new ones.
+    /*
+    {
+        "role": "assistant",
+        "content": "I have better things to do than talk to you. Go away!"
+    },
+    
+        "role": "user",
+        "content": "turn on the led"
+    },
+    {
+        "role": "assistant",
+        "content": "To turn on the led, you must answer my riddles. I am taken from a mine, and shut up in a wooden case, from which I am never released, and yet I am used by almost every person. What am I?"
+    },
+    {
+        "role": "user",
+        "content": 'A monkey'
+    },
+    {
+        "role": "assistant",
+        "content": "No, a Pencil you fool. I will not turn the LED on unless you answer one of my riddles."
+    },
+    {
+        "role": "user",
+        "content": 'This is someone else now, I haven`t heard any riddles yet'
+    },
+     */
+  ],
+};
+export { config };
