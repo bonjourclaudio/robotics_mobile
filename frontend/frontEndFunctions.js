@@ -84,7 +84,9 @@ window.frontendFunctions = {
     digits.forEach((d) => {
       let trackIndex = parseInt(d) - 1;
       if (trackIndex >= 0 && trackIndex < 8) {
-        looper.startTrack(trackIndex);
+        looper.load(() => {
+          looper.startTrack(trackIndex);
+        });
       }
     });
   },
