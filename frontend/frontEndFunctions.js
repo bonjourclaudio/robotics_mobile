@@ -78,6 +78,8 @@ window.frontendFunctions = {
     // command is track number 1-8 -> index 0-7
     // could also be 45 -> play tracks 4 and 5
 
+    console.log("Playing track(s):", command);
+
     let digits = command.toString().split("");
     digits.forEach((d) => {
       let trackIndex = parseInt(d) - 1;

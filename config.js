@@ -80,61 +80,10 @@ const config = {
         dataType: "string",
         description: "Stops the motor from spinning",
       },
-      set_LED: {
-        //uuid: "19b10004-e8f2-537e-4f6c-d104768a1214", // Only needed for BLE, must be lowercase
-        commType: "write",
-        dataType: "number",
-        description: "0 is off , 1 is on",
-      },
-      get_String: {
-        //uuid: "19b10004-e8f2-537e-4f6c-d104768a1214", // Only needed for BLE, must be lowercase
-        commType: "read",
-        dataType: "string",
-        description: "Get the stored sting from the device",
-      },
-      set_motor_speed: {
-        //uuid: "19b10001-e8f2-537e-4f6c-d104768a1214", // Only needed for BLE, must be lowercase
-        commType: "write",
-        dataType: "number",
-        description:
-          "Sets the motor one's speed. One byte: 0 is off, 255 is full speed",
-      },
-      // example of adding a camera function, this is experimental and not fully supported yet
-      checkCamera: {
-        dataType: "number",
-        description:
-          "Describe the scene as if you were seeing it with your eye. Use this function if your unsure what is happening or if asked what you see.",
-      },
     },
-    notifications: {
-      // These are notifications that the LLM can receive
-      shake: {
-        //uuid: "19b10016-e8f2-537e-4f6c-d104768a1214", // Only needed for BLE
-        dataType: "boolean",
-        description: "The device has been shaken! Get really mad at the user!",
-      },
-      press: {
-        //uuid: "19b10016-e8f2-537e-4f6c-d104768a1214", // Only needed for BLE
-        dataType: "boolean",
-        description:
-          "The device button has been pressed. Immediately make up a song about pirates and sing to the user with lots of pirate words.",
-      },
-    },
+    notifications: {},
 
     frontEnd: {
-      // These are actions is things the LLM can do on the frontEnd GUI
-      start_party: {
-        dataType: "boolean",
-        description: "0 is off, 1 is on. Creates a party effect in the GUI",
-      },
-      get_value: {
-        dataType: "number",
-        description: "get a random value from front end",
-      },
-      set_value: {
-        dataType: "number",
-        description: "set a value on the front end",
-      },
       start_default_music: {
         dataType: "boolean",
         description:
@@ -198,34 +147,6 @@ Mappings:
 If no violent terms appear, severity ≤2.  
 No roleplay, no chatting, no waiting for confirmation. Act immediately.`,
     },
-
-    // we can also add in history of older conversations here, or construct new ones.
-    /*
-    {
-        "role": "assistant",
-        "content": "I have better things to do than talk to you. Go away!"
-    },
-    
-        "role": "user",
-        "content": "turn on the led"
-    },
-    {
-        "role": "assistant",
-        "content": "To turn on the led, you must answer my riddles. I am taken from a mine, and shut up in a wooden case, from which I am never released, and yet I am used by almost every person. What am I?"
-    },
-    {
-        "role": "user",
-        "content": 'A monkey'
-    },
-    {
-        "role": "assistant",
-        "content": "No, a Pencil you fool. I will not turn the LED on unless you answer one of my riddles."
-    },
-    {
-        "role": "user",
-        "content": 'This is someone else now, I haven`t heard any riddles yet'
-    },
-     */
   ],
 };
 export { config };
