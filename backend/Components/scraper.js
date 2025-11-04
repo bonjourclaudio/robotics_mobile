@@ -31,6 +31,5 @@ export async function getLiveEvents() {
     events.push(event);
   });
 
-  console.log("Scraped Events:", events);
   return events;
 }

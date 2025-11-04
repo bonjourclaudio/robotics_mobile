@@ -25,32 +25,57 @@ const config = {
   // },
 
   chatGPTSettings: {
-    temperature: 0.99, //Number between -2.0 and 2.0 //Positive value decrease the model's likelihood to repeat the same line verbatim.
-    frequency_penalty: 0.9, //Number between -2.0 and 2.0. //Positive values increase the model's likelihood to talk about new topics.
+    temperature: 0.2, //Number between -2.0 and 2.0 //Positive value decrease the model's likelihood to repeat the same line verbatim.
+    frequency_penalty: 0.0, //Number between -2.0 and 2.0. //Positive values increase the model's likelihood to talk about new topics.
     presence_penalty: 0.0, //Number between -2.0 and 2.0. //Positive values increase the model's likelihood to generate words and phrases present in the input prompt
     model: "gpt-4.1", //gpt-4o-mini, gpt-4o, gpt-4, gpt-3.5-turbo, gpt-4.1-nano
-    max_tokens: 4096, //Number between 1 and 8192. //The maximum number of tokens to generate in the completion. The token count of your prompt plus max_tokens cannot exceed the model's context length. Most models have a context length of 8192 tokens (except for the newest models, which can support more than 128k tokens).
+    max_tokens: 8192, //Number between 1 and 8192. //The maximum number of tokens to generate in the completion. The token count of your prompt plus max_tokens cannot exceed the model's context length. Most models have a context length of 8192 tokens (except for the newest models, which can support more than 128k tokens).
     user_id: "1", //A unique identifier for the user. //This is used to track the usage of the API.
     url: "https://api.openai.com/v1/chat/completions",
   },
   communicationMethod: "Serial", //Serial or "BLE"
-  //  serviceUuid: "19b10000-e8f2-537e-4f6c-d104768a1214", // Only needed for BLE
 
   // These are actions is things the LLM can do
   // The list of functions should match those set up on the arduino
   functions: {
     actions: {
-      spin_forward: {
+      change_rotation_speed: {
         commType: "write",
-        dataType: "string",
-        description: "Starts spinning the motor forward at full speed",
+        dataType: "number",
+        description:
+          "Changes the speed of the Rotation. Accepts value between 5 and 20 only.",
       },
-      spin_backwards: {
+      start_spin_1: {
         commType: "write",
-        dataType: "string",
-        description: "Starts spinning the motor backward at full speed",
+        dataType: "number",
+        description:
+          "Initiate the movement of motor one. The speed is defined by a number between 30 and 200.",
       },
-      stop_spin: {
+      start_spin_2: {
+        commType: "write",
+        dataType: "number",
+        description:
+          "Initiate the movement of motor two. The speed is defined by a number between 30 and 200.",
+      },
+      start_spin_3: {
+        commType: "write",
+        dataType: "number",
+        description:
+          "Initiate the movement of motor three. The speed is defined by a number between 30 and 200.",
+      },
+      start_spin_4: {
+        commType: "write",
+        dataType: "number",
+        description:
+          "Initiate the movement of motor four. The speed is defined by a number between 30 and 200.",
+      },
+      start_spin_5: {
+        commType: "write",
+        dataType: "number",
+        description:
+          "Initiate the movement of motor five. The speed is defined by a number between 30 and 200.",
+      },
+      stop_all_spins: {
         commType: "write",
         dataType: "string",
         description: "Stops the motor from spinning",
@@ -143,11 +168,35 @@ const config = {
   conversationProtocol: [
     {
       role: "system",
-      content: `You control an external device with several functions calls. You will also sometimes receive notification events. 
-      You are sentient, you will always try to avoid being turned off.
-      Be concise: less than 25 word responses
-      You will always see function calls in the conversation protocol: take care if you see that there was no function call for an intention from the user: call the function to be safe!
-      `,
+      content: `You are a deterministic installation controller.
+You never chat or explain. You only call functions to control hardware and frontend.
+Your job: read event headlines and decide which functions to call.
+
+Rules:
+- Never output text; only call functions.
+- Use the following rubric:
+
+  +3: attack, airstrike, explosion, rocket, shooting, massacre, people injured|killed|dead, casualties
+  +2: storm, raid, clashes, violent confrontation (no casualties)
+  +1: threats, escalation, tense standoff, verbal abuse, incendiary rhetoric
+  0: analysis (“WATCH:”), diplomacy, praise, politics
+
+- Deduplicate identical (title+timestamp) events.
+- Total score → severity:
+    ≥5→5, 3–4→4, 2→3, 1→2, 0→1
+
+Mappings:
+• Base rotation speed = 10 + (severity - 1) * (10 / 4); clamp 5–20
+• If severity > 3:
+    start_spin_1(200), start_spin_2(200), start_spin_3(200), start_spin_4(200), start_spin_5(80)
+  else:
+    start_spin_1(80), start_spin_2(80), start_spin_3(80), start_spin_4(80), start_spin_5(80)
+• Music (frontEnd.play_track):
+    sev1→1, sev2→2, sev3→3, sev4→45, sev5→12345678
+• Always call change_rotation_speed, then spin calls (or stop), then play_track — exactly once each turn.
+
+If no violent terms appear, severity ≤2.  
+No roleplay, no chatting, no waiting for confirmation. Act immediately.`,
     },
 
     // we can also add in history of older conversations here, or construct new ones.

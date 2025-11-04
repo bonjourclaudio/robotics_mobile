@@ -13,6 +13,8 @@ SoftwareSerial mySerial(rxPin, txPin);
 #define LEFT_MOTOR   0
 #define RIGHT_MOTOR  1
 
+int currentSpeed = 1;
+
 SCMD md1;
 SCMD md2;
 SCMD md3;
@@ -58,7 +60,7 @@ void setup()
   pinMode(LED_BUILTIN, OUTPUT);
   pinMode(10, OUTPUT); // used to indicate TTS state
 
-pinMode(PIN1, INPUT_PULLUP); 
+  pinMode(PIN1, INPUT_PULLUP); 
   pinMode(PIN2, INPUT_PULLUP);  
   
   Wire.begin();
@@ -70,7 +72,9 @@ pinMode(PIN1, INPUT_PULLUP);
   initSCMD(md3, SCMD_ADDR_3);
 
   mySerial.begin(115200);
-  mySerial.print("#0D1500\r");                                     // this is used to clear the serial buffer
+  mySerial.print("#0D1500\r");    
+  
+
 }
 
 void loop() {
@@ -86,33 +90,76 @@ void loop() {
     notify("press", true);
     previousMillisShake = currentMillis;
   }
+
+  mySerial.print(String("#") + LSS_ID + String("WR") + currentSpeed  + "\r");
 }
 
-void spin_forward() {
-  md1.setDrive(LEFT_MOTOR,  0, 80);
-  md1.setDrive(RIGHT_MOTOR, 0, 80);
-  md2.setDrive(LEFT_MOTOR,  0, 80);
-  md2.setDrive(RIGHT_MOTOR, 0, 80);
-  md3.setDrive(LEFT_MOTOR,  0, 80);
-  md3.setDrive(RIGHT_MOTOR, 0, 80);
+// -- Rotation Speed --
+// Accepts number between 5 and 20
+// Define Speed
+void change_rotation_speed(int targetSpeed) {
+  int stepDelay = 10;
+  int stepSize = 1;
+
+  if (targetSpeed > currentSpeed) {
+    for (int s = currentSpeed; s <= targetSpeed; s += stepSize) {
+      currentSpeed = s;
+      mySerial.print(String("#") + LSS_ID + String("WR") + currentSpeed  + "\r");
+      delay(stepDelay);
+    }
+  } else if (targetSpeed < currentSpeed) {
+    // decrease speed gradually
+    for (int s = currentSpeed; s >= targetSpeed; s -= stepSize) {
+      currentSpeed = s;
+      mySerial.print(String("#") + LSS_ID + String("WR") + currentSpeed  + "\r");
+      delay(stepDelay);
+    }
+  }
 }
 
-void spin_backwards() {
-  md1.setDrive(LEFT_MOTOR,  1, 80);
-  md1.setDrive(RIGHT_MOTOR, 1, 80);
-  md2.setDrive(LEFT_MOTOR,  1, 80);
-  md2.setDrive(RIGHT_MOTOR, 1, 80);
-  md3.setDrive(LEFT_MOTOR,  1, 80);
-  md3.setDrive(RIGHT_MOTOR, 1, 80);
+// -- Spin Motor 1 --
+// Accepts number between 30 and 200
+// Defined Speed
+void start_spin_1(int speed) {
+   runMotor(md1, LEFT_MOTOR, speed);
 }
 
-void stop_spin() {
+// -- Spin Motor 2 --
+// Accepts number between 30 and 200
+// Defined Speed
+void start_spin_2(int speed) {
+  runMotor(md1, RIGHT_MOTOR, speed);
+}
+
+// -- Spin Motor 3 --
+// Accepts number between 30 and 200
+// Defined Speed
+void start_spin_3(int speed) {
+ runMotor(md2, LEFT_MOTOR, speed);
+}
+
+// -- Spin Motor 4 --
+// Accepts number between 30 and 200
+// Defined Speed
+void start_spin_4(int speed) {
+ runMotor(md2, RIGHT_MOTOR, speed);
+}
+
+// -- Spin Motor 5 --
+// Accepts number between 30 and 200
+// Defined Speed
+void start_spin_5(int speed) {
+  runMotor(md3, LEFT_MOTOR, speed);
+}
+
+
+// Stops All the Spin Motors at once
+void stop_all_spins() {
   md1.setDrive(LEFT_MOTOR,  0, 0);
   md1.setDrive(RIGHT_MOTOR, 0, 0);
   md2.setDrive(LEFT_MOTOR,  0, 0);
   md2.setDrive(RIGHT_MOTOR, 0, 0);
   md3.setDrive(LEFT_MOTOR,  0, 0);
-  md3.setDrive(RIGHT_MOTOR, 0, 0);
 }
 
 void set_LED(bool state)
@@ -167,11 +214,22 @@ void TTS(bool state)
   digitalWrite(10, state ? HIGH : LOW);
 }
 
+inline void runMotor(SCMD& drv, uint8_t channel, int speed) {
+  int s = constrain(speed, -200, 200);
+  uint8_t dir = (s >= 0) ? 0 : 1;
+  uint8_t pwm = (uint8_t)constrain(abs(s), 0, 200);
+  drv.setDrive(channel, dir, pwm);
+}
+
 // {"function_name", "writeDataType", function}
 Command commandFunctions[] = {
-    {"spin_forward", "none", spin_forward},
-    {"stop_spin", "none", stop_spin},
-    {"spin_backwards", "none", spin_backwards},
+    {"change_rotation_speed", "int", change_rotation_speed},
+    {"start_spin_1", "int", start_spin_1},
+    {"start_spin_2", "int", start_spin_2},
+    {"start_spin_3", "int", start_spin_3},
+    {"start_spin_4", "int", start_spin_4},
+    {"start_spin_5", "int", start_spin_5},
+    {"stop_all_spins", "none", stop_all_spins},
     {"set_LED", "bool", set_LED},
     {"get_LED", "none", get_LED},
     {"set_motor_position", "float", set_motor_position},
@@ -180,7 +238,8 @@ Command commandFunctions[] = {
     {"get_IMU", "none", get_IMU},
     {"set_String", "string", set_String},
     {"get_String", "none", get_String},
-    {"TTS", "bool", TTS}};
+    {"TTS", "bool", TTS}
+};
 
 // Define the number of commands
 const int numCommands = sizeof(commandFunctions) / sizeof(commandFunctions[0]);

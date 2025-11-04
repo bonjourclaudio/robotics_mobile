@@ -552,24 +552,23 @@ async function main() {
 
     // 10. Scrape Data Interval
     setInterval(() => {
-      console.log("fetching live events...");
+      console.log("‼️ fetching live events... ‼️");
       let data = getLiveEvents();
 
       let llmString =
-        "Here are the latest live events. Intepret them and tell me the severity of the latest two events from 1-5. Play tracks accordingly. If the severity is low, play tracks 12345678 which is harmonical. If the severity increases, play only individual tracks, e.g. 1 and 8 which crates gaps.\n";
+        "Here are the latest live events. Don't forget to also spin the motors:\n";
+
       data.then((events) => {
         events.forEach((event, index) => {
-          llmString += `${index + 1}. ${event.title} at ${event.time_local}: ${
-            event.text
-          }\n`;
+          llmString += `${index + 1}. ${event.title} at ${event.time_local}\n`;
+        });
+
+        LLM_API.send(llmString, "system").then((response) => {
+          console.log("response from LLM API 💎", response);
+          LLMresponseHandler(response);
         });
       });
-
-      LLM_API.send(llmString, "system").then((response) => {
-        console.log("response from LLM API 💎", response);
-        LLMresponseHandler(response);
-      });
-    }, 60000);
+    }, 60000); // 1 minute interval
   } catch (error) {
     console.error("❌ incomplete start of application:", error);
     throw error;
