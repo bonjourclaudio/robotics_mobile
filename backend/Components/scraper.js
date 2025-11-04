@@ -10,6 +10,8 @@ class Event {
 var events = [];
 
 export async function getLiveEvents() {
+  events = [];
+
   const res = await fetch(
     "https://very-teddi-iad-9839f521.koyeb.app/getRecentEvents"
   );
@@ -21,15 +23,14 @@ export async function getLiveEvents() {
 
   const data = await res.json();
 
-  data.forEach((item) => {
-    let event = new Event(
-      item.time_gmt,
-      item.time_local,
-      item.title,
-      item.text
-    );
-    events.push(event);
-  });
+  let event = new Event(
+    data[0].time_gmt,
+    data[0].time_local,
+    data[0].title,
+    data[0].text
+  );
+
+  events.push(event);
 
   return events;
 }

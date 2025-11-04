@@ -186,13 +186,13 @@ Rules:
     ≥5→5, 3–4→4, 2→3, 1→2, 0→1
 
 Mappings:
-• Base rotation speed = 10 + (severity - 1) * (10 / 4); clamp 5–20
+• Base rotation speed = 5 + (severity - 1) * (10 / 4); clamp 5–20
 • If severity > 3:
-    start_spin_1(200), start_spin_2(200), start_spin_3(200), start_spin_4(200), start_spin_5(80)
+    start_spin_1(200), start_spin_2(200), start_spin_3(200), start_spin_4(200), start_spin_5(-80)
   else:
-    start_spin_1(80), start_spin_2(80), start_spin_3(80), start_spin_4(80), start_spin_5(80)
+    stop_all_spins
 • Music (frontEnd.play_track):
-    sev1→1, sev2→2, sev3→3, sev4→45, sev5→12345678
+    sev1→12345678, sev2→123456, sev3→1234, sev4→12, sev5→1
 • Always call change_rotation_speed, then spin calls (or stop), then play_track — exactly once each turn.
 
 If no violent terms appear, severity ≤2.  
